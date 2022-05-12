@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.devsuperior.bds04.dto.EventDTO;
 import com.devsuperior.bds04.entities.Event;
+import com.devsuperior.bds04.repositories.CityRepository;
 import com.devsuperior.bds04.repositories.EventRepository;
 
 @Service
@@ -15,6 +16,9 @@ public class EventService {
 
 	@Autowired
 	private EventRepository repository;
+	
+	@Autowired
+	private CityRepository cityRepository;
 	
 	@Transactional(readOnly = true)
 	public Page<EventDTO> findAllPaged(Pageable pageable) {
@@ -25,9 +29,16 @@ public class EventService {
 	@Transactional
 	public EventDTO insert(EventDTO dto) {
 		Event entity = new Event();
-		entity.setName(dto.getName());
+		copyDtoToEntity(dto, entity);
 		entity = repository.save(entity);
 		return new EventDTO(entity);
+	}
+	
+	private void copyDtoToEntity(EventDTO dto, Event entity) {
+		entity.setName(dto.getName());
+		entity.setDate(dto.getDate());
+		entity.setUrl(dto.getUrl());
+		entity.setCity(cityRepository.getOne(dto.getCityId()));	
 	}
 
 }
